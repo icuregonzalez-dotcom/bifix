@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BiFIX — Mi Día</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d14;
+    --surface: #13131e;
+    --surface2: #1a1a2e;
+    --border: rgba(138,99,255,0.15);
+    --accent: #8a63ff;
+    --accent2: #c084fc;
+    --accent3: #38bdf8;
+    --text: #e8e6f0;
+    --muted: #7a7890;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --radius: 16px;
+    --nav-bg: rgba(13,13,20,0.85);
+    --grid-line: rgba(138,99,255,0.03);
+    --glow: rgba(138,99,255,0.07);
+  }
+
+  body.light {
+    --bg: #f4f3ff;
+    --surface: #ffffff;
+    --surface2: #ede9fe;
+    --border: rgba(138,99,255,0.2);
+    --text: #1a1730;
+    --muted: #7c6fa0;
+    --nav-bg: rgba(244,243,255,0.9);
+    --grid-line: rgba(138,99,255,0.05);
+    --glow: rgba(138,99,255,0.06);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: var(--nav-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo span { -webkit-text-fill-color: var(--accent3); }
+
+  .nav-center {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .nav-user {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; color: var(--muted);
+  }
+
+  .theme-toggle {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text); font-size: 16px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .theme-toggle:hover { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700; color: white;
+  }
+
+  /* MAIN */
+  main {
+    position: relative; z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* GREETING */
+  .greeting {
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease;
+  }
+
+  .greeting h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .greeting p { color: var(--muted); font-size: 15px; }
+
+  /* GRID */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 270px 1fr 270px;
+    gap: 18px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    animation: fadeUp 0.5s ease;
+    transition: border-color 0.3s;
+  }
+
+  .card:hover { border-color: rgba(138,99,255,0.28); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── HORAS ── */
+  .hours-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 48px; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2px;
+  }
+
+  .hours-label { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+  .hours-controls {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 16px;
+  }
+
+  .btn-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+
+  .btn-circle:hover { background: var(--accent); border-color: var(--accent); }
+
+  .hours-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; text-align: center; padding: 8px;
+  }
+
+  .tip-box {
+    background: rgba(138,99,255,0.08);
+    border: 1px solid rgba(138,99,255,0.2);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px; color: var(--accent2); line-height: 1.5;
+  }
+
+  .tip-box strong { color: var(--accent); font-family: 'Syne', sans-serif; }
+
+  /* ── ESTADO ── */
+  .emojis {
+    display: flex; gap: 6px; justify-content: center; margin: 12px 0;
+  }
+
+  .emoji-btn {
+    font-size: 26px;
+    background: var(--surface2);
+    border: 2px solid transparent;
+    border-radius: 12px; padding: 9px;
+    cursor: pointer; transition: all 0.2s;
+    filter: grayscale(0.3);
+  }
+
+  .emoji-btn:hover { transform: scale(1.15); filter: none; }
+
+  .emoji-btn.selected {
+    border-color: var(--accent);
+    background: rgba(138,99,255,0.15);
+    filter: none; transform: scale(1.1);
+    box-shadow: 0 0 14px rgba(138,99,255,0.3);
+  }
+
+  .state-label {
+    text-align: center; font-size: 13px; color: var(--muted);
+    min-height: 20px; transition: all 0.3s;
+  }
+
+  /* ── TAREAS ── */
+  .tasks-card { grid-column: 2; grid-row: 1 / 4; }
+
+  .left-col { grid-column: 1; grid-row: 1 / 4; display: flex; flex-direction: column; gap: 18px; }
+  .right-col { grid-column: 3; grid-row: 1 / 4; display: flex; flex-direction: column; gap: 18px; }
+
+  .task-input-row {
+    display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+
+  .task-input {
+    flex: 2; min-width: 130px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .task-input:focus { outline: none; border-color: var(--accent); }
+
+  .task-date, .task-subject {
+    flex: 1; min-width: 110px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; padding: 10px;
+  }
+
+  select option { background: var(--surface2); color: var(--text); }
+
+  .btn-add {
+    background: var(--accent); border: none;
+    border-radius: 10px; color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 600;
+    padding: 10px 18px; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+
+  .btn-add:hover { background: var(--accent2); box-shadow: 0 0 20px rgba(138,99,255,0.4); }
+
+  .tasks-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .task-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 13px 15px;
+    transition: all 0.3s;
+    animation: slideIn 0.3s ease;
+  }
+
+  .task-item:hover { border-color: rgba(138,99,255,0.3); }
+  .task-item.done { opacity: 0.45; }
+  .task-item.done .task-name { text-decoration: line-through; }
+
+  .task-check {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid var(--border);
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+
+  .task-check:hover { border-color: var(--accent); }
+  .task-check.checked { background: var(--accent); border-color: var(--accent); }
+  .task-check.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+
+  .task-info { flex: 1; min-width: 0; }
+  .task-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .task-meta { display: flex; gap: 8px; margin-top: 4px; font-size: 12px; color: var(--muted); align-items: center; }
+
+  .task-badge {
+    padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; font-family: 'Syne', sans-serif;
+  }
+
+  /* Matemáticas: azul (sin cambio) */
+  .badge-mat { background: rgba(56,189,248,0.15); color: var(--accent3); }
+  /* Ciencias: verde */
+  .badge-cien { background: rgba(52,211,153,0.18); color: #34d399; }
+  /* Inglés: rojo */
+  .badge-ing { background: rgba(239,68,68,0.15); color: #ef4444; }
+  /* Sociales (ex Historia): amarillo */
+  .badge-soc { background: rgba(250,204,21,0.15); color: #facc15; }
+  /* Español: naranja */
+  .badge-esp { background: rgba(249,115,22,0.15); color: #f97316; }
+  /* Francés: sin cambio (indigo) */
+  .badge-fra { background: rgba(129,140,248,0.15); color: #818cf8; }
+  /* Electivas: púrpura */
+  .badge-ele { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .badge-otro { background: rgba(138,99,255,0.15); color: var(--accent2); }
+
+  .urgency-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .urgent { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+  .soon   { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+  .ok     { background: var(--success); }
+
+  .btn-delete {
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    font-size: 15px; transition: color 0.2s;
+    padding: 4px; flex-shrink: 0;
+  }
+
+  .btn-delete:hover { color: var(--danger); }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 14px;
+  }
+
+  .empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* ── NOTAS ── */
+  .notes-area {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; line-height: 1.6;
+    padding: 14px; resize: vertical; height: 165px;
+    min-height: 100px; max-height: 400px;
+    transition: border-color 0.2s;
+    overflow-y: auto; box-sizing: border-box;
+  }
+
+  .notes-area:focus { outline: none; border-color: var(--accent); }
+  .notes-hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  /* ── PROGRESO SEMANAL ── */
+  .progress-card { grid-column: 1 / -1; }
+
+  .week-bars {
+    display: flex; gap: 12px; align-items: flex-end;
+    height: 100px; margin-top: 8px;
+  }
+
+  .day-col {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; height: 100%; justify-content: flex-end;
+  }
+
+  .bar-wrap {
+    width: 100%; background: var(--surface2);
+    border-radius: 6px; overflow: hidden;
+    height: 80px; display: flex; align-items: flex-end;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+
+  .bar-wrap:hover { opacity: 0.8; }
+
+  .bar-fill {
+    width: 100%; border-radius: 6px;
+    background: linear-gradient(180deg, var(--accent2), var(--accent));
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .bar-fill.today {
+    background: linear-gradient(180deg, var(--accent3), #0284c7);
+    box-shadow: 0 0 14px rgba(56,189,248,0.4);
+  }
+
+  .day-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .day-hours { font-size: 11px; color: var(--accent2); font-family: 'Syne', sans-serif; font-weight: 600; }
+
+  /* ── MINI WEEK BARS ── */
+  .mini-week-bars {
+    display: flex; gap: 8px; align-items: flex-end;
+    height: 80px; margin-top: 8px;
+  }
+
+  .mini-day-col {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 4px; height: 100%; justify-content: flex-end;
+  }
+
+  .mini-bar-wrap {
+    width: 100%; background: var(--surface2);
+    border-radius: 4px; overflow: hidden;
+    height: 60px; display: flex; align-items: flex-end;
+  }
+
+  .mini-bar-fill {
+    width: 100%; border-radius: 4px;
+    background: linear-gradient(180deg, var(--accent2), var(--accent));
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .mini-bar-fill.today {
+    background: linear-gradient(180deg, var(--accent3), #0284c7);
+    box-shadow: 0 0 10px rgba(56,189,248,0.4);
+  }
+
+  .mini-day-label { font-size: 10px; color: var(--muted); font-weight: 500; }
+  .mini-day-hours { font-size: 10px; color: var(--accent2); font-family: 'Syne', sans-serif; font-weight: 600; }
+
+  /* ── CALENDARIO ── */
+  .cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .cal-month {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--text);
+  }
+
+  .cal-nav {
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    font-size: 16px; padding: 2px 6px;
+    border-radius: 6px; transition: all 0.2s;
+  }
+
+  .cal-nav:hover { background: var(--surface2); color: var(--text); }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+
+  .cal-dow {
+    font-size: 9px; font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    color: var(--muted); text-align: center;
+    padding: 4px 0; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s;
+    position: relative; font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+
+  .cal-day:hover:not(.empty) { background: var(--surface2); }
+
+  .cal-day.empty { cursor: default; }
+
+  .cal-day.today {
+    background: var(--accent);
+    color: white; font-weight: 700;
+    box-shadow: 0 0 10px rgba(138,99,255,0.4);
+  }
+
+  .cal-day.has-task::after {
+    content: '';
+    position: absolute; bottom: 2px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--accent2);
+  }
+
+  .cal-day.today.has-task::after { background: white; }
+
+  .cal-day.has-urgent::after { background: var(--danger); }
+  .cal-day.today.has-urgent::after { background: white; }
+
+  .cal-day.past { color: var(--muted); }
+
+  /* tooltip on hover */
+  .cal-day[data-tooltip]:hover::before {
+    content: attr(data-tooltip);
+    position: absolute; bottom: 110%; left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 10px; white-space: nowrap;
+    color: var(--text); z-index: 10;
+    pointer-events: none;
+  }
+
+  /* ── COLORES DE MATERIAS (calendario) ── */
+  .cal-day.subj-mat  { background: rgba(56,189,248,0.22);  color: #7dd8fa; }
+  .cal-day.subj-cien { background: rgba(52,211,153,0.22);  color: #6ee7b7; }
+  .cal-day.subj-ing  { background: rgba(239,68,68,0.22);   color: #fca5a5; }
+  .cal-day.subj-soc  { background: rgba(250,204,21,0.22);  color: #fde047; }
+  .cal-day.subj-esp  { background: rgba(249,115,22,0.22);  color: #fdba74; }
+  .cal-day.subj-fra  { background: rgba(129,140,248,0.22); color: #a5b4fc; }
+  .cal-day.subj-ele  { background: rgba(168,85,247,0.22);  color: #d8b4fe; }
+  .cal-day.subj-mix  { background: rgba(138,99,255,0.22);  color: var(--accent2); }
+
+  .cal-day.today.subj-mat,
+  .cal-day.today.subj-cien,
+  .cal-day.today.subj-ing,
+  .cal-day.today.subj-soc,
+  .cal-day.today.subj-esp,
+  .cal-day.today.subj-fra,
+  .cal-day.today.subj-ele,
+  .cal-day.today.subj-mix { background: var(--accent); color: white; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── MODAL NOMBRE ── */
+  .name-modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .name-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 36px;
+    max-width: 400px; width: 90%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(138,99,255,0.25);
+  }
+
+  .name-modal-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+
+  .name-modal-logo span { -webkit-text-fill-color: var(--accent3); }
+
+  .name-modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 700;
+    margin-bottom: 6px; color: var(--text);
+  }
+
+  .name-modal p {
+    font-size: 14px; color: var(--muted);
+    margin-bottom: 24px; line-height: 1.5;
+  }
+
+  .name-modal-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; padding: 12px 16px;
+    text-align: center;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .name-modal-input:focus { outline: none; border-color: var(--accent); }
+
+  .name-modal-btn {
+    width: 100%;
+    background: var(--accent); border: none;
+    border-radius: 12px; color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    padding: 13px; cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .name-modal-btn:hover { background: var(--accent2); box-shadow: 0 0 24px rgba(138,99,255,0.4); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .tasks-card { grid-column: 1; grid-row: auto; }
+    .left-col, .right-col { grid-column: 1; grid-row: auto; }
+    nav { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MODAL NOMBRE -->
+<div class="name-modal-overlay" id="name-modal" style="display:none;">
+  <div class="name-modal">
+    <div class="name-modal-logo">Bi<span>FIX</span></div>
+    <h2>¡Bienvenido!</h2>
+    <p>¿Cómo te llamas? Así puedo personalizarte la experiencia.</p>
+    <input class="name-modal-input" id="name-modal-input" type="text" placeholder="Tu nombre..." maxlength="30"
+      onkeydown="if(event.key==='Enter') saveName()">
+    <button class="name-modal-btn" onclick="saveName()">Entrar →</button>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">Bi<span>FIX</span></div>
+  <div class="nav-center">Mi Día</div>
+  <div class="nav-user">
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+    <div class="avatar" id="nav-avatar">?</div>
+    <span id="nav-name">—</span>
+  </div>
+</nav>
+
+<main>
+  <div class="greeting">
+    <h1 id="greeting-text">Buenos días, Isaac 👋</h1>
+    <p id="greeting-date"></p>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- HORAS -->
+      <div class="card">
+        <div class="card-title">Horas Estudiadas Hoy</div>
+        <div class="hours-display" id="hours-display">0</div>
+        <div class="hours-label">horas registradas</div>
+        <div class="hours-controls">
+          <button class="btn-circle" onclick="changeHours(-0.5)">−</button>
+          <input type="number" class="hours-input" id="hours-input" value="0" min="0" max="24" step="0.5" onchange="setHours(this.value)">
+          <button class="btn-circle" onclick="changeHours(0.5)">+</button>
+        </div>
+        <div class="tip-box" id="ia-tip">
+          <strong>💡 BiFIX:</strong> Empieza con 25 minutos enfocados y 5 de descanso. ¡La técnica Pomodoro funciona!
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <div class="card" style="flex:1;">
+        <div class="card-title">Tus Notas</div>
+        <textarea class="notes-area" id="notes-area" placeholder="Escribe aquí tus apuntes rápidos, recordatorios o ideas..."></textarea>
+        <div class="notes-hint">💾 Se guarda automáticamente</div>
+      </div>
+
+    </div>
+
+    <!-- TAREAS -->
+    <div class="card tasks-card">
+      <div class="card-title">Próximas Tareas</div>
+      <div class="task-input-row">
+        <input type="text" class="task-input" id="task-name-input" placeholder="Nombre de la tarea..." onkeydown="if(event.key==='Enter') addTask()">
+        <input type="date" class="task-date" id="task-date-input">
+        <select class="task-subject" id="task-subject-input">
+          <option value="Matemáticas">Matemáticas</option>
+          <option value="Ciencias">Ciencias</option>
+          <option value="Inglés">Inglés</option>
+          <option value="Sociales">Sociales</option>
+          <option value="Español">Español</option>
+          <option value="Francés">Francés</option>
+          <option value="Electiva">Electiva</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <button class="btn-add" onclick="addTask()">+ Añadir</button>
+      </div>
+      <div class="tasks-list" id="tasks-list">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div>No tienes tareas aún.<br>¡Añade tu primera!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- ESTADO -->
+      <div class="card">
+        <div class="card-title">Estado Actual</div>
+        <div class="emojis">
+          <button class="emoji-btn" onclick="setMood(this,'Agotado')">😴</button>
+          <button class="emoji-btn" onclick="setMood(this,'Cansado')">😔</button>
+          <button class="emoji-btn" onclick="setMood(this,'Normal')">😐</button>
+          <button class="emoji-btn" onclick="setMood(this,'Bien')">🙂</button>
+        </div>
+        <div class="state-label" id="state-label">Selecciona cómo te sientes</div>
+      </div>
+
+      <!-- PROGRESO SEMANAL (Lun-Vie) -->
+      <div class="card">
+        <div class="card-title">Progreso Semanal</div>
+        <div class="mini-week-bars" id="week-bars"></div>
+      </div>
+
+      <!-- CALENDARIO MENSUAL -->
+      <div class="card" style="flex:1;">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month" id="cal-month-label"></div>
+          <button class="cal-nav" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<script>
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('bifix_theme', isLight ? 'light' : 'dark');
+}
+
+let state = {
+  hours:    parseFloat(localStorage.getItem('bifix_hours') || '0'),
+  mood:     localStorage.getItem('bifix_mood') || '',
+  notes:    localStorage.getItem('bifix_notes') || '',
+  tasks:    JSON.parse(localStorage.getItem('bifix_tasks') || '[]'),
+  weekData: JSON.parse(localStorage.getItem('bifix_week')  || '[0,0,0,0,0,0,0]'),
+};
+
+function todayIdx() { const d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
+
+function checkWeeklyReset() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday
+  const todayStr = today.toISOString().split('T')[0];
+  const lastReset = localStorage.getItem('bifix_last_reset');
+
+  if (dayOfWeek === 0 && lastReset !== todayStr) {
+    state.weekData = [0,0,0,0,0,0,0];
+    state.hours = 0;
+    localStorage.setItem('bifix_week', JSON.stringify(state.weekData));
+    localStorage.setItem('bifix_hours', '0');
+    localStorage.setItem('bifix_last_reset', todayStr);
+  }
+}
+
+function saveName() {
+  const input = document.getElementById('name-modal-input').value.trim();
+  if (!input) { document.getElementById('name-modal-input').focus(); return; }
+  localStorage.setItem('bifix_name', input);
+  document.getElementById('name-modal').style.display = 'none';
+  applyName(input);
+  initApp();
+}
+
+function applyName(name) {
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('nav-name').textContent = name;
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
+  const firstName = name.split(' ')[0];
+  document.getElementById('greeting-text').textContent = `${greet}, ${firstName} 👋`;
+  document.getElementById('greeting-date').textContent =
+    new Date().toLocaleDateString('es-CO', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+function init() {
+  // Theme
+  if (localStorage.getItem('bifix_theme') === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-btn').textContent = '🌙';
+  }
+
+  const savedName = localStorage.getItem('bifix_name');
+  if (!savedName) {
+    // First time: show modal, defer app init
+    document.getElementById('name-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('name-modal-input').focus(), 100);
+  } else {
+    applyName(savedName);
+    initApp();
+  }
+}
+
+function initApp() {
+  // Weekly reset
+  checkWeeklyReset();
+
+  // Hours
+  document.getElementById('hours-display').textContent = state.hours;
+  document.getElementById('hours-input').value = state.hours;
+  updateIATip(state.hours);
+
+  // Notes
+  document.getElementById('notes-area').value = state.notes;
+  document.getElementById('notes-area').addEventListener('input', e => {
+    state.notes = e.target.value;
+    localStorage.setItem('bifix_notes', state.notes);
+  });
+
+  // Default date = today
+  document.getElementById('task-date-input').value = new Date().toISOString().split('T')[0];
+
+  renderTasks();
+  renderWeekBars();
+  renderCalendar();
+}
+
+// HOURS
+function changeHours(delta) {
+  state.hours = Math.max(0, Math.min(24, parseFloat((state.hours + delta).toFixed(1))));
+  updateHoursUI();
+}
+
+function setHours(val) {
+  state.hours = Math.max(0, Math.min(24, parseFloat(val) || 0));
+  updateHoursUI();
+}
+
+function updateHoursUI() {
+  document.getElementById('hours-display').textContent = state.hours;
+  document.getElementById('hours-input').value = state.hours;
+  localStorage.setItem('bifix_hours', state.hours);
+  state.weekData[todayIdx()] = state.hours;
+  localStorage.setItem('bifix_week', JSON.stringify(state.weekData));
+  renderWeekBars();
+  updateIATip(state.hours);
+}
+
+function updateIATip(h) {
+  const tips = [
+    [0,  '💡 <strong>BiFIX:</strong> ¡Aún no has estudiado hoy! Empieza con solo 25 minutos enfocados.'],
+    [1,  '💡 <strong>BiFIX:</strong> Buen comienzo. Recuerda tomar descansos de 5 min cada 25 min.'],
+    [2,  '💡 <strong>BiFIX:</strong> Vas bien. Hidrátate y asegúrate de tener buena iluminación.'],
+    [4,  '💡 <strong>BiFIX:</strong> Llevas más de 4 horas — tómate un descanso largo, lo mereces.'],
+    [6,  '💡 <strong>BiFIX:</strong> Mucho tiempo estudiando. El cerebro necesita descanso para consolidar lo aprendido.'],
+  ];
+  let tip = tips[0][1];
+  for (const [threshold, msg] of tips) { if (h >= threshold) tip = msg; }
+  document.getElementById('ia-tip').innerHTML = tip;
+}
+
+// WEEK BARS (Lun-Vie only)
+function renderWeekBars() {
+  const days = ['Lun','Mar','Mié','Jue','Vie'];
+  const idx = todayIdx();
+  const weekSlice = state.weekData.slice(0, 5);
+  const maxH = Math.max(...weekSlice, 1);
+  const container = document.getElementById('week-bars');
+  container.innerHTML = '';
+  weekSlice.forEach((h, i) => {
+    const pct = (h / maxH) * 100;
+    const isToday = i === idx;
+    container.innerHTML += `
+      <div class="mini-day-col">
+        <div class="mini-day-hours">${h}h</div>
+        <div class="mini-bar-wrap">
+          <div class="mini-bar-fill ${isToday ? 'today' : ''}" style="height:${pct}%"></div>
+        </div>
+        <div class="mini-day-label" style="color:${isToday ? 'var(--accent3)' : ''}">${days[i]}</div>
+      </div>`;
+  });
+}
+
+// CALENDAR
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-month-label').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  // Adjust: week starts Monday (0=Mon...6=Sun)
+  const startOffset = (firstDay === 0) ? 6 : firstDay - 1;
+
+  // Build task map: date string → tasks[]
+  const taskMap = {};
+  state.tasks.forEach(t => {
+    if (t.date) {
+      if (!taskMap[t.date]) taskMap[t.date] = [];
+      taskMap[t.date].push(t);
+    }
+  });
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  // Day of week headers (Mon–Sun)
+  ['L','M','X','J','V','S','D'].forEach(d => {
+    grid.innerHTML += `<div class="cal-dow">${d}</div>`;
+  });
+
+  // Empty cells before first day
+  for (let i = 0; i < startOffset; i++) {
+    grid.innerHTML += `<div class="cal-day empty"></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    const isPast = new Date(dateStr) < new Date(today.toDateString());
+    const tasks = taskMap[dateStr] || [];
+    const hasTask = tasks.length > 0;
+    const hasUrgent = tasks.some(t => !t.done);
+
+    let classes = 'cal-day';
+    if (isToday) classes += ' today';
+    else if (isPast) classes += ' past';
+    if (hasTask && hasUrgent) classes += ' has-urgent';
+    else if (hasTask) classes += ' has-task';
+
+    // Subject color highlight
+    if (hasTask) {
+      const subjMap = { 'Matemáticas':'subj-mat','Ciencias':'subj-cien','Inglés':'subj-ing','Sociales':'subj-soc','Español':'subj-esp','Francés':'subj-fra','Electiva':'subj-ele' };
+      const subjects = [...new Set(tasks.map(t => t.subj))];
+      if (subjects.length === 1 && subjMap[subjects[0]]) {
+        classes += ' ' + subjMap[subjects[0]];
+      } else {
+        classes += ' subj-mix';
+      }
+    }
+
+    const tooltip = tasks.length ? tasks.map(t => t.name).join(', ') : '';
+    const tooltipAttr = tooltip ? `data-tooltip="${tooltip}"` : '';
+
+    grid.innerHTML += `<div class="${classes}" ${tooltipAttr}>${d}</div>`;
+  }
+}
+
+// MOOD
+function setMood(btn, label) {
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.mood = label;
+  localStorage.setItem('bifix_mood', label);
+  document.getElementById('state-label').textContent = `Estado: ${label}`;
+}
+
+// TASKS
+function getBadgeClass(s) {
+  return { 'Matemáticas':'badge-mat','Ciencias':'badge-cien','Inglés':'badge-ing','Sociales':'badge-soc','Español':'badge-esp','Francés':'badge-fra','Electiva':'badge-ele' }[s] || 'badge-otro';
+}
+
+function getUrgency(dateStr) {
+  if (!dateStr) return 'ok';
+  const diff = (new Date(dateStr) - new Date()) / 86400000;
+  return diff < 2 ? 'urgent' : diff < 5 ? 'soon' : 'ok';
+}
+
+function addTask() {
+  const name = document.getElementById('task-name-input').value.trim();
+  const date = document.getElementById('task-date-input').value;
+  const subj = document.getElementById('task-subject-input').value;
+  if (!name) { document.getElementById('task-name-input').focus(); return; }
+  state.tasks.push({ id: Date.now(), name, date, subj, done: false });
+  state.tasks.sort((a, b) => (a.date || '9') < (b.date || '9') ? -1 : 1);
+  localStorage.setItem('bifix_tasks', JSON.stringify(state.tasks));
+  document.getElementById('task-name-input').value = '';
+  renderTasks();
+  renderCalendar();
+}
+
+function toggleTask(id) {
+  state.tasks = state.tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
+  localStorage.setItem('bifix_tasks', JSON.stringify(state.tasks));
+  renderTasks();
+  renderCalendar();
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  localStorage.setItem('bifix_tasks', JSON.stringify(state.tasks));
+  renderTasks();
+  renderCalendar();
+}
+
+function renderTasks() {
+  const list = document.getElementById('tasks-list');
+  if (!state.tasks.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div>No tienes tareas aún.<br>¡Añade tu primera!</div></div>`;
+    return;
+  }
+  list.innerHTML = state.tasks.map(t => {
+    const urg = getUrgency(t.date);
+    const dateLabel = t.date ? new Date(t.date + 'T12:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'}) : '';
+    return `
+    <div class="task-item ${t.done ? 'done' : ''}">
+      <div class="urgency-dot ${urg}"></div>
+      <div class="task-check ${t.done ? 'checked' : ''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-info">
+        <div class="task-name">${t.name}</div>
+        <div class="task-meta">
+          <span class="task-badge ${getBadgeClass(t.subj)}">${t.subj}</span>
+          ${dateLabel ? `<span>📅 ${dateLabel}</span>` : ''}
+        </div>
+      </div>
+      <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>
